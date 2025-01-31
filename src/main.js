@@ -1,7 +1,9 @@
 import './style.css'
+import "./code/index"
 
 document.querySelector('#app').innerHTML = `
-  <div> 
+  <div>
+  js 
   </div>
 `
 
