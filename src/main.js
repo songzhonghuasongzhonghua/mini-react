@@ -1,10 +1,13 @@
-import './style.css'
-import "./code/index"
+import { createElement } from "./code";
+import render from "./code/render";
+const node = createElement("h1",{
+    class:"title",
+    style:"background-color:red"
 
-document.querySelector('#app').innerHTML = `
-  <div>
-  js 
-  </div>
-`
+},
+"hello",createElement("p",{
+    class:"p",
+    style:"background-color:blue"
+}))
 
-setupCounter(document.querySelector('#counter'))
+render(node,document.getElementById("root"))
