@@ -1,13 +1,14 @@
 import { createElement } from "./code";
 import render from "./code/render";
 const node = createElement("h1",{
-    class:"title",
+    className:"title",
     style:"background-color:red"
 
 },
 "hello",createElement("p",{
-    class:"p",
-    style:"background-color:blue"
-}))
+    className:"p",
+    style:"background-color:blue;height:60px",
+    
+},"world"))
 
 render(node,document.getElementById("root"))
