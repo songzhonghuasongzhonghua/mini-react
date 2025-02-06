@@ -6,30 +6,32 @@ function createDom(fiber){
             dom[key] = fiber.props[key]
         }
    })
-   const children = fiber.props.children || []
-   children.forEach(child => {
-    render(child,dom)
-   })
+//    const children = fiber.props.children || []
+//    children.forEach(child => {
+//     render(child,dom)
+//    })
   return dom 
 }
-let network = null
+let nextwork = null
+let root = null
 //重写render函数
 function render(el,container){
-    network = {
+    root = {
         dom:container,
         props:{
             children:[el]
         },
         child:null
     }
+    nextwork = root
 }
 function performUnitOfWork(fiber){
     if(fiber.dom === null){
         fiber.dom = createDom(fiber)
     }
-    if(fiber.parent){
-        fiber.parent.dom.append(fiber.dom)
-    }
+    // if(fiber.parent){
+    //     fiber.parent.dom.append(fiber.dom)
+    // }
 
     let prevFiber = null
     const children = fiber.props.children
@@ -50,21 +52,43 @@ function performUnitOfWork(fiber){
         prevFiber = newFiber
     })
     if(fiber.child) return fiber.child
-    const nextFiber = fiber
-    while(nextFiber){
-        if(nextFiber.sibling) return nextFiber.sibling
-        nextFiber = fiber.parent
+    // let nextFiber = fiber
+    // while(nextFiber){
+    //     if(nextFiber.sibling) return nextFiber.sibling
+    //     nextFiber = fiber.parent
+    // }
+    if(fiber.sibling){
+        return fiber.sibling
+    }
+    if(fiber.parent && fiber.parent.sibling){
+        return fiber.parent.sibling
     }
 }
-
+function commitRoot(){
+    commitwork(root.child)
+    root = null
+}
+function commitwork(fiber){
+    if(!fiber){
+        return
+    }
+    const domParent = fiber.parent.dom
+    domParent.appendChild(fiber.dom)
+    
+    commitwork(fiber.child)
+    commitwork(fiber.sibling)
+}
 
 //任务调度器
 function workLoop(deadline){
     const time = deadline.timeRemaining()
     let shouldRun = false
-    while(!shouldRun && network){
+    while(!shouldRun && nextwork){
         shouldRun = deadline.timeRemaining() < 1
-        network = performUnitOfWork(network)
+        nextwork = performUnitOfWork(nextwork)
+    }
+    if(!nextwork && root){
+        commitRoot()
     }
     requestIdleCallback(workLoop)
 }
